@@ -24,6 +24,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
         auth= Firebase.auth
 
+       if (auth.currentUser != null) {
+           val intent =Intent(this, FeedActivity::class.java)
+           startActivity(intent)
+           finish()
+       }
+
 
     }
 
@@ -38,6 +44,15 @@ class MainActivity : AppCompatActivity() {
 
         if (userMail.equals("") || password.equals("")){
             Toast.makeText(this,"Enter password or Email", Toast.LENGTH_LONG).show()
+        } else {
+            auth.signInWithEmailAndPassword(userMail, password).addOnSuccessListener {
+
+                val intent=Intent(this@MainActivity, FeedActivity::class.java)
+                startActivity(intent)
+                finish()
+            }.addOnFailureListener {
+                Toast.makeText(this@MainActivity, it.localizedMessage, Toast.LENGTH_LONG).show()
+            }
         }
 
 
