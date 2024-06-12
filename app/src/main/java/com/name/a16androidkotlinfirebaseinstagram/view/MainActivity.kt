@@ -1,4 +1,4 @@
-package com.name.a16androidkotlinfirebaseinstagram
+package com.name.a16androidkotlinfirebaseinstagram.view
 
 import android.content.Intent
 import android.os.Bundle

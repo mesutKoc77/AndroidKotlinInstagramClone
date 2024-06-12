@@ -1,4 +1,4 @@
-package com.name.a16androidkotlinfirebaseinstagram
+package com.name.a16androidkotlinfirebaseinstagram.view
 
 import android.Manifest
 import android.content.Intent
@@ -23,8 +23,6 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.name.a16androidkotlinfirebaseinstagram.databinding.ActivityUploadBinding
-import java.sql.Time
-import java.sql.Timestamp
 import java.util.UUID
 
 class UploadActivity : AppCompatActivity() {
