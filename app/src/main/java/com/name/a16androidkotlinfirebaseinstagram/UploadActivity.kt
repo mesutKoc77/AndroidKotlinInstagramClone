@@ -15,7 +15,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.storage
 import com.name.a16androidkotlinfirebaseinstagram.databinding.ActivityUploadBinding
+import java.sql.Time
+import java.sql.Timestamp
+import java.util.UUID
 
 class UploadActivity : AppCompatActivity() {
 
@@ -23,6 +33,9 @@ class UploadActivity : AppCompatActivity() {
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
     private lateinit var permissionLauncher : ActivityResultLauncher<String>
     var selectedPicture:Uri?=null
+    private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var storage : FirebaseStorage
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUploadBinding.inflate(layoutInflater)
@@ -30,10 +43,73 @@ class UploadActivity : AppCompatActivity() {
         setContentView(view)
         registerLauncher()
 
+        auth=Firebase.auth
+        firestore=Firebase.firestore
+        storage=Firebase.storage
+
+        //Firebase = "  firestore + storage " in toplamindan olusan bir yapidir.
+
+
+
+
+
+
 
     }
 
     fun upload (view: View) {
+
+        val uuid = UUID.randomUUID()
+        val imageName="$uuid.jpg"
+
+        val reference=storage.reference
+        val imageReference=reference.child("images").child(imageName)
+
+        if (selectedPicture!=null){
+            imageReference.putFile(selectedPicture!!).addOnSuccessListener {
+                //simdi bu belgeyi stiorGE E ALDIK ve yukledik, storage kayit olan dosyanin uri nin bize url layim ki firestore saddce hafifi dosyalari kabulediyor. yani bir url lazim bize.
+                //download url lazim bize biunu firestore e kayit edebimek icin
+                val uploadedPictureReference=storage.reference.child("images").child(imageName)
+                uploadedPictureReference.downloadUrl.addOnSuccessListener {
+                    val downloadedUrl=it.toString()
+                    //artik yuklenmis olan file in Url ini aldik ve firestore umuza ekleyebiulirz. Onccelikle url, comment ve diger bilgileri bir hasmap e alalim ve bu hasmap i firestore a
+                    //atalim cunku firestore daki her nesene anahtar deger eslemsi yani bir hashmap i kabul ediyor.
+
+                    if (auth.currentUser !=null){
+                        val postMap= hashMapOf<String, Any>()
+                        postMap.put("downloadedUrl", downloadedUrl)
+                        postMap.put("userEmail", auth.currentUser!!.email!!)
+                        postMap.put("comment", binding.commentText.text.toString())
+                        postMap.put("date", com.google.firebase.Timestamp.now())
+
+                        //biz simdi bir firestore da muhafaza edebilecgimiz bir nesne olusturduk simdi bu nesne yi firestore kutusunun icerisine atacagiz
+                        firestore.collection("Posts").add(postMap).addOnSuccessListener {
+                            finish()
+
+                        }.addOnFailureListener{
+                            Toast.makeText(this@UploadActivity,it.localizedMessage, Toast.LENGTH_LONG).show()
+                        }
+
+
+                    }
+
+
+                }
+
+
+
+            }.addOnFailureListener {
+                Toast.makeText(this, it.localizedMessage, Toast.LENGTH_LONG).show()
+
+            }
+        }
+
+
+
+
+
+
+
 
     }
 
